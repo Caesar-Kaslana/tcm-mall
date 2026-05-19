@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc
+           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Load AI properties (also needed here for @Value in Controllers) -->
+    <context:property-placeholder
+        location="classpath:ai.properties,classpath:secrets.properties"
+        ignore-resource-not-found="true"/>
+
+    <!-- Scan only Controller -->
+    <context:component-scan base-package="com.tcmmall.controller"/>
+
+    <!-- 配置Jackson ObjectMapper，支持Java8时间类型 -->
+    <bean id="jacksonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+        <!-- 注册Java8时间模块 -->
+        <property name="modules">
+            <list>
+                <bean class="com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"/>
+            </list>
+        </property>
+        <!-- 日期格式化 -->
+        <property name="dateFormat">
+            <bean class="java.text.SimpleDateFormat">
+                <constructor-arg value="yyyy-MM-dd HH:mm:ss"/>
+            </bean>
+        </property>
+        <!-- 关闭时间戳输出 -->
+        <property name="featuresToDisable">
+            <array value-type="com.fasterxml.jackson.databind.SerializationFeature">
+                <value>WRITE_DATES_AS_TIMESTAMPS</value>
+            </array>
+        </property>
+    </bean>
+
+    <!-- Enable MVC annotation + 绑定配置好的ObjectMapper -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper" ref="jacksonObjectMapper"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- Static resources -->
+    <mvc:default-servlet-handler/>
+
+    <!-- CORS configuration -->
+    <mvc:cors>
+        <mvc:mapping path="/**"
+                     allowed-origins="http://localhost:5173"
+                     allowed-methods="GET,POST,PUT,DELETE,OPTIONS"
+                     allowed-headers="*"
+                     allow-credentials="true"
+                     max-age="3600"/>
+    </mvc:cors>
+
+    <!-- Interceptors -->
+    <mvc:interceptors>
+        <!-- Login interceptor -->
+        <mvc:interceptor>
+            <mvc:mapping path="/api/**"/>
+            <mvc:exclude-mapping path="/api/user/login"/>
+            <mvc:exclude-mapping path="/api/user/register"/>
+            <mvc:exclude-mapping path="/api/goods/list"/>
+            <mvc:exclude-mapping path="/api/goods/detail/**"/>
+            <mvc:exclude-mapping path="/api/goods/category/list"/>
+            <mvc:exclude-mapping path="/api/banner/list"/>
+            <mvc:exclude-mapping path="/api/notice/list"/>
+            <mvc:exclude-mapping path="/api/ai/chat"/>
+            <bean class="com.tcmmall.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <!-- Permission interceptor -->
+        <mvc:interceptor>
+            <mvc:mapping path="/api/admin/**"/>
+            <bean class="com.tcmmall.interceptor.PermissionInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

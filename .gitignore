@@ -1,0 +1,29 @@
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# ===== Backend =====
+tcm-mall-backend/target/
+*.war
+*.class
+*.log
+
+# ===== Frontend =====
+tcm-mall-frontend/node_modules/
+tcm-mall-frontend/dist/
+tcm-mall-frontend/.vite/
+
+# ===== Sensitive Config =====
+# All secrets in one file — never commit this
+tcm-mall-backend/src/main/resources/secrets.properties
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

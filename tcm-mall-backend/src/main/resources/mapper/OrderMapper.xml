@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcmmall.mapper.OrderMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `order` (order_no, user_id, receiver_name, receiver_phone, receiver_address, total_amount, status, pay_time, ship_time, receive_time, create_time, update_time)
+        VALUES (#{orderNo}, #{userId}, #{receiverName}, #{receiverPhone}, #{receiverAddress}, #{totalAmount}, #{status}, #{payTime}, #{shipTime}, #{receiveTime}, NOW(), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE `order`
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="shipTime != null">ship_time = #{shipTime},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultType="com.tcmmall.entity.Order">
+        SELECT * FROM `order` WHERE id = #{id}
+    </select>
+
+    <select id="selectByOrderNo" resultType="com.tcmmall.entity.Order">
+        SELECT * FROM `order` WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="selectByUserId" resultType="com.tcmmall.entity.Order">
+        SELECT * FROM `order` WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectList" resultType="com.tcmmall.entity.Order">
+        SELECT * FROM `order` WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">AND order_no LIKE CONCAT('%', #{orderNo}, '%')</if>
+        <if test="status != null">AND status = #{status}</if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM `order` WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">AND order_no LIKE CONCAT('%', #{orderNo}, '%')</if>
+        <if test="status != null">AND status = #{status}</if>
+    </select>
+
+    <select id="selectRecent" resultType="com.tcmmall.entity.Order">
+        SELECT * FROM `order` ORDER BY create_time DESC LIMIT #{limit}
+    </select>
+</mapper>

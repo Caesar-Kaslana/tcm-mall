@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tcmmall.mapper.GoodsMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO goods (name, category_id, category_name, cover, price, stock, sales, description, effect, usage, contraindication, status, create_time, update_time)
+        VALUES (#{name}, #{categoryId}, #{categoryName}, #{cover}, #{price}, #{stock}, #{sales}, #{description}, #{effect}, #{usage}, #{contraindication}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE goods
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="sales != null">sales = #{sales},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="effect != null">effect = #{effect},</if>
+            <if test="usage != null">usage = #{usage},</if>
+            <if test="contraindication != null">contraindication = #{contraindication},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM goods WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultType="com.tcmmall.entity.Goods">
+        SELECT * FROM goods WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultType="com.tcmmall.entity.Goods">
+        SELECT * FROM goods WHERE 1=1
+        <if test="categoryId != null">AND category_id = #{categoryId}</if>
+        <if test="keyword != null and keyword != ''">AND name LIKE CONCAT('%', #{keyword}, '%')</if>
+        <if test="status != null">AND status = #{status}</if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectPage" resultType="com.tcmmall.entity.Goods">
+        SELECT * FROM goods WHERE 1=1
+        <if test="categoryId != null">AND category_id = #{categoryId}</if>
+        <if test="keyword != null and keyword != ''">AND name LIKE CONCAT('%', #{keyword}, '%')</if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM goods WHERE 1=1
+        <if test="categoryId != null">AND category_id = #{categoryId}</if>
+        <if test="keyword != null and keyword != ''">AND name LIKE CONCAT('%', #{keyword}, '%')</if>
+    </select>
+
+    <update id="updateStock">
+        UPDATE goods SET stock = #{stock}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateSales">
+        UPDATE goods SET sales = #{sales}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE goods SET status = #{status}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <select id="selectLowStock" resultType="com.tcmmall.entity.Goods">
+        SELECT * FROM goods WHERE stock &lt;= #{threshold} AND status = 1 ORDER BY stock ASC
+    </select>
+</mapper>
