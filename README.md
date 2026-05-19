@@ -131,6 +131,11 @@ EOF
 ### 4. 构建并启动后端
 
 ```bash
+# 确保使用 JDK 17（如果系统默认不是 17，需先设置）
+export JAVA_HOME=/path/to/jdk17        # Linux/Mac
+set JAVA_HOME=D:\jdk17                 # Windows (CMD)
+$env:JAVA_HOME="D:\jdk17"              # Windows (PowerShell)
+
 # 编译打包
 cd tcm-mall-backend
 mvn clean package -DskipTests
